@@ -5,35 +5,38 @@ on:
     branches: [main]
   pull_request:
 
+# Cancel superseded runs on the same ref instead of queueing behind them.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # One runner, all four packages: each job in the old matrix waited on
+  # runner availability separately, and uv's wheel cache is shared within
+  # a runner, so sequential sync+test of small packages costs ~1-2 min total.
   python:
-    name: python (${{ matrix.project }})
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        project:
-          - libs/mo-core
-          - libs/mo-kg
-          - libs/mo-dagster
-          - projects/dakp
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: uv lock check
-        run: uv lock --check
-        working-directory: dagster/${{ matrix.project }}
       - name: sync + test
         run: |
-          uv sync --group dev
-          uv run pytest -q
-        working-directory: dagster/${{ matrix.project }}
+          set -e
+          for dir in dagster/libs/*/ dagster/projects/*/; do
+            [ -f "$dir/pyproject.toml" ] || continue
+            echo "::group::uv lock --check: $dir"
+            (cd "$dir" && uv lock --check)
+            echo "::group::pytest: $dir"
+            (cd "$dir" && uv sync --group dev --quiet && uv run pytest -q)
+            echo "::endgroup::"
+          done
 
   go:
-    name: go (dakp workers)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -55,8 +58,8 @@ jobs:
           working-directory: dagster/projects/dakp/workers/go
 
   nix:
-    name: nix flake check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
