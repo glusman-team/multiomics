@@ -16,8 +16,9 @@ def test_all_five_stage_assets_exist():
 
 
 def test_definitions_load():
-    node_names = {node.name for node in defs.get_node_def().nodes}
-    assert "dakp_build" in node_names
+    job_def = defs.get_job_def("dakp_build")
+    node_names = {node.name for node in job_def.nodes}
+    assert {"acquisition", "extraction", "ner", "assertions", "kg_build"} <= node_names
 
 
 def test_kg_build_writes_kgx(tmp_path, monkeypatch):

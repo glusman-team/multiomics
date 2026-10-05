@@ -16,9 +16,13 @@ def subprocess_client() -> PipesSubprocessClient:
     return PipesSubprocessClient()
 
 
-def subprocess_client_resource():
-    """Resource form for definitions that prefer resources over direct calls."""
-    return PipesSubprocessClient().resource()
+def subprocess_client_resource() -> PipesSubprocessClient:
+    """Resource form for definitions that prefer resources over direct calls.
+
+    PipesSubprocessClient is a TreatAsResourceParam: pass the instance itself
+    as the value in Definitions(resources={...}); dagster adapts it on load.
+    """
+    return PipesSubprocessClient()
 
 
 def launch_worker(
