@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": ["{workspaceRoot}/.golangci.yml", "{workspaceRoot}/nx.json"],
+    "pythonInputs": [
+      "{projectRoot}/**/*.py",
+      "{projectRoot}/pyproject.toml",
+      "{workspaceRoot}/dagster/libs/**"
+    ]
+  },
+  "targetDefaults": {
+    "build": { "cache": true },
+    "lint": { "cache": true },
+    "test": { "cache": true }
+  },
+  "plugins": ["@naxodev/gonx"]
+}

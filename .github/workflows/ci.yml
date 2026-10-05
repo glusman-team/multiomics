@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    name: python (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - libs/mo-core
+          - libs/mo-kg
+          - libs/mo-dagster
+          - projects/dakp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: uv lock check
+        run: uv lock --check
+        working-directory: dagster/${{ matrix.project }}
+      - name: sync + test
+        run: |
+          uv sync --group dev
+          uv run pytest -q
+        working-directory: dagster/${{ matrix.project }}
+
+  go:
+    name: go (dakp workers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: dagster/projects/dakp/workers/go/go.mod
+      - name: build + test
+        run: |
+          go build ./...
+          go test ./...
+        working-directory: dagster/projects/dakp/workers/go
+      - name: lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: dagster/projects/dakp/workers/go
+
+  nix:
+    name: nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - run: nix flake check --no-build --no-warn-dirty

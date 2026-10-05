@@ -1,0 +1,28 @@
+# node
+node_modules/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# nix
+result
+result-*
+.direnv/
+
+# dagster runtime state (per-user, never committed)
+dagster/.dagster-home/
+
+# local env overrides (never committed)
+.env
+
+# built go worker binaries
+dagster/projects/*/workers/go/bin/
+
+# os
+.DS_Store
+/published/

@@ -1,0 +1,56 @@
+# Two stages, matching ISB/DAKP's .pre-commit-config.yaml convention:
+# pre-commit -- fast, auto-fixing checks only. Committing must stay cheap.
+# pre-push   -- whole-repo gates that most often break CI. Run once per push,
+#               not once per commit.
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Keep in sync with the ruff version resolved in each uv.lock.
+    rev: v0.16.0
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      # go lint + format (gofmt via golangci-lint formatters)
+      - id: golangci-lint
+        name: golangci-lint
+        entry: golangci-lint run --fix
+        language: system
+        types: [go]
+
+      # nix formatting (treefmt runner with nixfmt)
+      - id: treefmt
+        name: treefmt
+        entry: treefmt
+        language: system
+        types: [nix]
+
+      # pyproject edits must be re-locked (per python package under dagster/)
+      - id: check-locks
+        name: check-locks
+        entry: scripts/check-locks.sh
+        language: system
+        files: ^dagster/(libs|projects)/.*/(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+        stages: [pre-push]
+
+      # cached tests for everything the change touches (python + go via nx)
+      - id: nx-affected-test
+        name: nx-affected-test
+        entry: npx nx affected -t test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      # flake evaluates cleanly
+      - id: nix-flake-check
+        name: nix-flake-check
+        entry: nix flake check --no-build --no-warn-dirty
+        language: system
+        files: \.nix$|flake\.lock$
+        pass_filenames: false
+        stages: [pre-push]
