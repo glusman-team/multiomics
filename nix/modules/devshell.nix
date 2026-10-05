@@ -1,6 +1,6 @@
 # The one devshell: every tool for every language in this repo.
 # Enter with `nix develop` (or cd in with direnv via .envrc).
-{ pkgs, inputs, ... }:
+{ pkgs, inputs', ... }:
 {
   devShells.default = pkgs.mkShell {
     packages = [
@@ -28,7 +28,7 @@
       pkgs.quicktype
 
       # pi coding agent (project skills in .pi/ merge with global after trust)
-      inputs.agent-of-empires.packages.${pkgs.system}.default
+      inputs'.agent-of-empires.packages.${pkgs.system}.default
     ];
 
     env = {
