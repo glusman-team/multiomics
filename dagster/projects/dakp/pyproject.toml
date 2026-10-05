@@ -1,0 +1,43 @@
+[project]
+name = "dakp-dag"
+version = "0.1.0"
+description = "Dagster code location: DAKP pipeline (phase 1 scaffold; code migration from ISB/DAKP is phase 2)"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+  "dagster==1.13.24",
+  "mo-core",
+  "mo-kg",
+  "mo-dagster",
+]
+
+[dependency-groups]
+dev = [
+  "dagster-dg-cli==1.13.24",
+  "pytest>=8.0",
+  "ruff>=0.16.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dakp_dag"]
+
+[tool.uv.sources]
+mo-core = { path = "../../libs/mo-core", editable = true }
+mo-kg = { path = "../../libs/mo-kg", editable = true }
+mo-dagster = { path = "../../libs/mo-dagster", editable = true }
+
+[tool.dg]
+directory_type = "project"
+
+[tool.dg.project]
+root_module = "dakp_dag"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

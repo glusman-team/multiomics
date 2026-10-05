@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "mo-core",
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run pytest -q",
+        "cwd": "dagster/libs/mo-core"
+      },
+      "cache": true
+    }
+  }
+}

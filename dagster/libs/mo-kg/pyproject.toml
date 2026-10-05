@@ -1,0 +1,26 @@
+[project]
+name = "mo-kg"
+version = "0.1.0"
+description = "Knowledge graph output: KGX ndjson writer (the only planned sink) + KG QC. Imports no dagster."
+requires-python = ">=3.10,<3.15"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.16.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mo_kg"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

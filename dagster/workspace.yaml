@@ -1,0 +1,10 @@
+# Classic code-location loader for dagster-webserver / dagster-daemon
+# (process-compose runtime in nix/modules/dagster.nix). Requires each project's
+# venv to be synced and the module importable (uv sync in the project dir).
+#
+# `dg dev` does not use this file - it reads dg.toml and launches per-project
+# subprocesses itself.
+load_from:
+  - python_module:
+      module_name: dakp_dag
+      location_name: dakp

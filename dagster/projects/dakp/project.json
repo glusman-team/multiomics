@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "dakp",
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv run pytest -q",
+        "cwd": "dagster/projects/dakp"
+      },
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/dagster/libs/**"
+      ]
+    }
+  }
+}
