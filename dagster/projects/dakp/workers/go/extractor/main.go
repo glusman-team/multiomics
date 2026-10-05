@@ -27,11 +27,11 @@ import (
 const assetKey = "dakp_extraction"
 
 func run(ctx *dagsterpipes.Context[map[string]any]) error {
-	input, ok := (*ctx.Extras())["input"].(string)
+	input, ok := ctx.Extras()["input"].(string)
 	if !ok || input == "" {
 		return fmt.Errorf("extras.input (path to input ndjson) is required")
 	}
-	output, _ := (*ctx.Extras())["output"].(string)
+	output, _ := ctx.Extras()["output"].(string)
 	if output == "" {
 		return fmt.Errorf("extras.output (path to output ndjson) is required")
 	}
@@ -46,10 +46,10 @@ func run(ctx *dagsterpipes.Context[map[string]any]) error {
 	if out, err := os.ReadFile(output); err == nil && len(out) > 0 {
 		_ = ctx.LogInfo(fmt.Sprintf("cache hit: %s (%d bytes)", output, len(out)))
 		return pipesutil.ReportMaterialization(ctx, assetKey, cacheKey, pipesutil.CacheInfo{
-			Key:         cacheKey,
+			Key:          cacheKey,
 			ArtifactPath: output,
-			Hit:         true,
-			InputBytes:  int64(len(raw)),
+			Hit:          true,
+			InputBytes:   int64(len(raw)),
 		}, int64(countLines(out)))
 	}
 
@@ -59,7 +59,7 @@ func run(ctx *dagsterpipes.Context[map[string]any]) error {
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
-	defer outFile.Close()
+	defer func() { _ = outFile.Close() }() // safety for early returns; checked close below
 	w := bufio.NewWriter(outFile)
 	scanner := bufio.NewScanner(bytes.NewReader(raw))
 	scanner.Buffer(make([]byte, 0, 1024*1024), 16*1024*1024)
@@ -92,13 +92,16 @@ func run(ctx *dagsterpipes.Context[map[string]any]) error {
 	if err := w.Flush(); err != nil {
 		return err
 	}
+	if err := outFile.Close(); err != nil {
+		return fmt.Errorf("close output: %w", err)
+	}
 
 	_ = ctx.LogInfo(fmt.Sprintf("extracted %d rows -> %s", rows, output))
 	return pipesutil.ReportMaterialization(ctx, assetKey, cacheKey, pipesutil.CacheInfo{
-		Key:         cacheKey,
+		Key:          cacheKey,
 		ArtifactPath: output,
-		Hit:         false,
-		InputBytes:  int64(len(raw)),
+		Hit:          false,
+		InputBytes:   int64(len(raw)),
 	}, rows)
 }
 

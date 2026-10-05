@@ -9,7 +9,7 @@
 package pipesutil
 
 import (
-	"crypto/hex"
+	"encoding/hex"
 
 	dagsterpipes "github.com/hupe1980/dagster-pipes-go"
 	"github.com/zeebo/blake3"
@@ -21,18 +21,18 @@ const WorkerVersion = "0.1.0"
 
 // CacheInfo describes a content-addressed artifact decision.
 type CacheInfo struct {
-	Key         string // BLAKE3(inputs || worker version), hex
+	Key          string // BLAKE3(inputs || worker version), hex
 	ArtifactPath string // where the output artifact lives
-	Hit         bool   // true when the artifact was already present
-	InputBytes  int64  // size of the input consumed
+	Hit          bool   // true when the artifact was already present
+	InputBytes   int64  // size of the input consumed
 }
 
 // HashInput derives a cache key from input bytes and the worker version.
 // Keys are content-based, so they survive re-runs and redeploys.
 func HashInput(input []byte) string {
-	h := blake3.New(32, nil)
-	h.Write([]byte(WorkerVersion))
-	h.Write(input)
+	h := blake3.New()
+	_, _ = h.Write([]byte(WorkerVersion)) // hash.Hash writes cannot fail
+	_, _ = h.Write(input)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -49,9 +49,9 @@ func ReportMaterialization(
 		AssetKey:    assetKey,
 		DataVersion: dataVersion,
 		Metadata: map[string]any{
-			"cache_key":     cache.Key,
-			"cache_hit":     cache.Hit,
-			"rows":          rows,
+			"cache_key":      cache.Key,
+			"cache_hit":      cache.Hit,
+			"rows":           rows,
 			"worker_version": WorkerVersion,
 		},
 	})

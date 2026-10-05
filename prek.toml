@@ -22,11 +22,14 @@ language = "python"
 repo = "local"
 
 # go lint + format (gofmt via golangci-lint formatters)
+# Module-wide lint (golangci-lint cannot typecheck named files from
+# different packages) with filenames off; types=[go] still scopes it.
 [[repos.hooks]]
 id = "golangci-lint"
 name = "golangci-lint"
-entry = "golangci-lint run --fix"
+entry = "bash -c 'cd dagster/projects/dakp/workers/go && golangci-lint run --fix ./...'"
 language = "system"
+pass_filenames = false
 types = ["go"]
 
 # nix formatting (treefmt runner with nixfmt)

@@ -1,3 +1,10 @@
 module github.com/glusman-team/multiomics/dagster/projects/dakp/workers/go
 
 go 1.26
+
+require (
+	github.com/hupe1980/dagster-pipes-go v0.0.10
+	github.com/zeebo/blake3 v0.2.4
+)
+
+require github.com/klauspost/cpuid/v2 v2.0.12 // indirect
