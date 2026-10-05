@@ -26,3 +26,4 @@ dagster/projects/*/workers/go/bin/
 # os
 .DS_Store
 /published/
+.nx/
