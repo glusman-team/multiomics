@@ -13,10 +13,12 @@
     extra-substituters = [
       "https://cache.nixos.org"
       "https://nix-community.cachix.org"
+      "https://agent-of-empires.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWZboiP5epOVrvVPtryaT8MUvsiFA="
       "nix-community.cachix.org-1:mBVF2oxPjuOC0j2PcNZQBzzoSQAAeKPdkNipC9hibio="
+      "agent-of-empires.cachix.org-1:Z+VwTlT8GT7giWN9HhJ+Am0DPGfbFVlafcQioBqJ6wY="
     ];
   };
 

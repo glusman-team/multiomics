@@ -28,7 +28,8 @@
       pkgs.quicktype
 
       # pi coding agent (project skills in .pi/ merge with global after trust)
-      inputs'.agent-of-empires.packages.${pkgs.system}.default
+      # (same package /etc/nixos uses: modules/skyeav/user.nix)
+      inputs'.agent-of-empires.packages.${pkgs.system}.aoe-with-web
     ];
 
     env = {
